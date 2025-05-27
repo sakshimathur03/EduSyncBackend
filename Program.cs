@@ -26,7 +26,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "https://edusync-frontend03.azurewebsites.net") // local + deployed frontend
+        policy.WithOrigins("http://localhost:3000", "https://lively-mushroom-0ad1df70f.6.azurestaticapps.net") // local + deployed frontend
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
