@@ -56,9 +56,13 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             ValidIssuer = jwtSettings["Issuer"],
             ValidAudience = jwtSettings["Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(secretKey))
+            IssuerSigningKey = new SymmetricSecurityKey(Convert.FromBase64String(secretKey)),
+
+            // 🔥 This line is critical to map the role claim correctly
+            RoleClaimType = "http://schemas.microsoft.com/ws/2008/06/identity/claims/role"
         };
     });
+
 
 builder.Services.AddAuthorization();
 
