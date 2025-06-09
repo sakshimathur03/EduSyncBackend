@@ -7,8 +7,10 @@ namespace EduSyncAPI.Interfaces
     {
         Task<IEnumerable<Course>> GetAllAsync();
         Task<Course> GetByIdAsync(Guid id);
-
-        // ✅ Updated to take instructorId from the controller
         Task<Course> CreateCourseAsync(CourseDto dto, Guid instructorId);
+
+        // Delete course method
+        Task<bool> DeleteCourseAsync(Guid courseId, Guid instructorId);
     }
+
 }

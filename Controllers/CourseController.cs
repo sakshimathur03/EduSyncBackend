@@ -1,8 +1,8 @@
-﻿using System.Security.Claims;
-using EduSyncAPI.DTOs;
+﻿using EduSyncAPI.DTOs;
 using EduSyncAPI.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 [ApiController]
 [Route("api/[controller]")]
@@ -16,6 +16,8 @@ public class CoursesController : ControllerBase
     }
 
     [HttpGet]
+
+    [AllowAnonymous]
     public async Task<IActionResult> GetAll() =>
         Ok(await _courseService.GetAllAsync());
 
@@ -23,12 +25,10 @@ public class CoursesController : ControllerBase
     public async Task<IActionResult> GetById(Guid id) =>
         Ok(await _courseService.GetByIdAsync(id));
 
-    // 🔐 Require Instructor role
     [HttpPost]
     [Authorize(Roles = "Instructor")]
     public async Task<IActionResult> Create([FromBody] CourseDto dto)
     {
-        // ✅ Extract instructor ID from token
         var instructorIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
         if (instructorIdClaim == null)
             return Unauthorized("Invalid token — user ID missing");
@@ -37,5 +37,23 @@ public class CoursesController : ControllerBase
 
         var course = await _courseService.CreateCourseAsync(dto, instructorId);
         return CreatedAtAction(nameof(GetById), new { id = course.CourseId }, course);
+    }
+
+    [HttpDelete("{id}")]
+    [Authorize(Roles = "Instructor")]
+    public async Task<IActionResult> Delete(Guid id)
+    {
+        var instructorIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+        if (instructorIdClaim == null)
+            return Unauthorized("Invalid token — user ID missing");
+
+        var instructorId = Guid.Parse(instructorIdClaim.Value);
+
+        var success = await _courseService.DeleteCourseAsync(id, instructorId);
+
+        if (!success)
+            return NotFound("Course not found or you do not have permission to delete it.");
+
+        return NoContent();
     }
 }

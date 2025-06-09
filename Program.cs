@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using EduSyncAPI.Helpers;
 using EduSyncAPI.Interfaces;
 using EduSyncAPI.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,7 +9,7 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 
 var builder = WebApplication.CreateBuilder(args);
-
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
 // 🔧 Add environment variables support
 builder.Configuration
     .SetBasePath(Directory.GetCurrentDirectory())
@@ -93,6 +94,11 @@ builder.Services.AddSwaggerGen(c =>
     });
     c.OperationFilter<SwaggerFileUploadFilter>(); // optional
 });
+builder.Services.AddSingleton(provider =>
+    new EventHubPublisher(
+        builder.Configuration["EventHub:ConnectionString"],
+        builder.Configuration["EventHub:HubName"]
+    ));
 
 var app = builder.Build();
 

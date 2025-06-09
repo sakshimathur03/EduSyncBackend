@@ -37,5 +37,19 @@ namespace EduSyncAPI.Services
 
             return course;
         }
+        public async Task<bool> DeleteCourseAsync(Guid courseId, Guid instructorId)
+        {
+            var course = await _context.Courses.FindAsync(courseId);
+            if (course == null)
+                return false;
+
+            if (course.InstructorId != instructorId)
+                return false;
+
+            _context.Courses.Remove(course);
+            await _context.SaveChangesAsync();
+            return true;
+        }
+
     }
 }

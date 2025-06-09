@@ -1,35 +1,50 @@
 ﻿using EduSyncAPI.DTOs;
 using EduSyncAPI.Interfaces;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace EduSyncAPI.Controllers
+[ApiController]
+[Route("api/[controller]")]
+public class ResultsController : ControllerBase
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class ResultsController : ControllerBase
+    private readonly IResultService _resultService;
+
+    public ResultsController(IResultService resultService)
     {
-        private readonly IResultService _resultService;
+        _resultService = resultService;
+    }
 
-        public ResultsController(IResultService resultService)
+    [HttpPost]
+    public async Task<IActionResult> Create([FromBody] ResultDto dto)
+    {
+        try
         {
-            _resultService = resultService;
-        }
+            if (dto.AssessmentId == Guid.Empty || dto.UserId == Guid.Empty)
+                return BadRequest(new { message = "Invalid AssessmentId or UserId." });
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll() =>
-            Ok(await _resultService.GetAllAsync());
-
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetById(Guid id) =>
-            Ok(await _resultService.GetByIdAsync(id));
-
-        [HttpPost]
-        public async Task<IActionResult> Create([FromBody] ResultDto dto)
-        {
             var result = await _resultService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetById), new { id = result.ResultId }, result);
         }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, new { message = "Internal server error", detail = ex.Message });
+        }
     }
 
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetById(Guid id)
+    {
+        var result = await _resultService.GetByIdAsync(id);
+        return result != null ? Ok(result) : NotFound();
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> GetAll()
+    {
+        var results = await _resultService.GetAllAsync();
+        return Ok(results);
+    }
 }
