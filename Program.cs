@@ -27,7 +27,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowReactApp", policy =>
     {
-        policy.WithOrigins("http://localhost:3000", "https://lively-mushroom-0ad1df70f.6.azurestaticapps.net") // local + deployed frontend
+        policy.WithOrigins("http://localhost:3000", "https://red-bush-02b40aa0f.6.azurestaticapps.net") // local + deployed frontend
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
